@@ -5,67 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Background from "./Background";
 import ProjectSignal from "./ProjectSignal";
 
-export type Project = {
-  index: string;
-  title: string;
-  delay: number;
-  description: string;
-  techStack: string[];
-  features: string[];
-  github: string;
-  demo: string;
-};
-
-const projects: Project[] = [
-  { index: "01", title: "Mental Health AI Chatbot", delay: 0.1, description: "“trying to make AI feel a little more human”\n\nbuilt conversational systems with tone awareness, safety checks, and real-world mental health use cases.", techStack: ["Python", "LLMs", "React"], features: ["Tone awareness", "Safety checks", "Contextual memory"], github: "#", demo: "#" },
-  { index: "02", title: "Mapeer", delay: 0.2, description: "“making sustainable choices easier, not harder”\n\nused machine learning to recommend eco-friendly commute options based on user behavior.", techStack: ["TensorFlow", "React", "Node.js"], features: ["Behavioral modeling", "Real-time routing", "Carbon tracking"], github: "#", demo: "#" },
-  { index: "03", title: "ADDfocus", delay: 0.3, description: "“designing for brains that don’t follow ‘normal’ productivity rules”\n\nbuilt a cognition-aware system to reduce overload and improve focus.", techStack: ["Next.js", "Framer Motion", "TypeScript"], features: ["Cognitive load tracking", "Minimalist UI", "Focus states"], github: "#", demo: "#" },
-  { index: "04", title: "Stock Prediction System", delay: 0.4, description: "“seeing how far patterns can actually take you”\n\nexperimented with neural networks and time-series models on market data.", techStack: ["PyTorch", "Pandas", "Python"], features: ["Time-series forecasting", "Data visualization", "Pattern recognition"], github: "#", demo: "#" },
-];
-
-export type Domain = {
-  id: string;
-  title: string;
-  subtitle?: string;
-  description: string;
-  related: string[];
-};
-
-const domains: Domain[] = [
-  { id: "ai", title: "building intelligent systems", subtitle: "the core engine", description: "Exploring the boundary between human intent and machine execution, crafting systems that augment rather than replace.", related: ["Quiet Machines", "Neural Atlas"] },
-  { id: "human", title: "human-centered everything", subtitle: "interfaces, accessibility, mental models", description: "Designing tools that respect human attention and operate quietly in the background of our lives.", related: ["Echo Archive", "Liminal OS"] },
-  { id: "systems", title: "systems, from logic to experience", subtitle: "DSA, low-level thinking, architecture", description: "Building robust architectures from the ground up, translating complex ideas into highly performant living systems.", related: ["Neural Atlas", "Custom Renderers"] },
-  { id: "product", title: "products that feel intentional", subtitle: "web dev, UX, real-world usability", description: "Crafting beautiful, tactile digital experiences using modern frameworks and subtle, meaningful motion.", related: ["Liminal OS", "Portfolio"] },
-  { id: "research", title: "curiosity-driven exploration", subtitle: "research, experiments, learning", description: "Constantly learning, reading, and prototyping weird ideas that might one day become something real.", related: ["Echo Archive", "Open Source"] },
-];
-
-export type ThoughtArticle = {
-  id: string;
-  title: string;
-  date: string;
-  content: string;
-};
-
-const thoughtsData: ThoughtArticle[] = [
-  {
-    id: "dead-software",
-    title: "why most software feels dead",
-    date: "08.12",
-    content: "We spend most of our waking hours staring at glowing rectangles, yet the interfaces we interact with often feel entirely devoid of life. They are transactional, sterile, and hyper-optimized for metrics rather than human connection.\n\nI think about this constantly. When did we decide that \"professional\" meant removing all friction, and consequently, all texture? The best tools I've used don't just solve a problem—they have a specific weight to them. They breathe. They respond to inputs with subtle kinetic energy.\n\nAdding life to software isn't about slapping on unnecessary animations. It's about designing systems that acknowledge the human on the other side of the glass. It's the difference between a fluorescent office light and a warm desk lamp. We need more desk lamps."
-  },
-  {
-    id: "machine-intelligence",
-    title: "the illusion of machine intelligence",
-    date: "05.04",
-    content: "It's easy to look at the output of a large language model and feel a sense of awe. The syntax is perfect, the logic flows, and the tone is whatever you asked it to be. But working closely with these systems reveals the sleight of hand.\n\nThey don't \"know\" anything in the way we do. They map probabilistic relationships across vast latent spaces. When a model generates a beautiful paragraph, it isn't having a thought; it's completing a highly complex statistical puzzle.\n\nUnderstanding this doesn't make the technology less impressive, but it changes how we should build with it. If we treat AI as an infallible oracle, we build fragile systems. But if we treat it as a powerful, sometimes hallucinatory reasoning engine, we can design interfaces that catch its falls and amplify its strengths."
-  },
-  {
-    id: "building-for-you",
-    title: "building things you actually want to use",
-    date: "02.18",
-    content: "There's a specific kind of burnout that comes from building things you don't actually care about. For a long time, I found myself optimizing for the hypothetical \"user persona\"—a statistical aggregate of behaviors and pain points.\n\nThe shift happened when I started building things strictly because I wanted them to exist. The standards change when you are your own primary user. You notice the tiny, imperceptible latencies. You care deeply about the typography. You refuse to ship something that feels cheap.\n\nThe irony is that by designing for an audience of one, you often end up creating something that resonates far more deeply with others. Authenticity scales better than market research."
-  }
-];
+import { projects, domains, thoughtsData, type Project, type Domain, type ThoughtArticle } from "./data";
+export type { Project, Domain, ThoughtArticle };
 
 export default function Hero() {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
@@ -105,47 +46,47 @@ export default function Hero() {
     <main className="relative bg-deep text-ink">
       <Background />
 
-      <section className="relative flex min-h-[100svh] flex-col px-5 py-5 sm:px-8 md:px-12 md:py-8 lg:px-[7vw]">
-        <motion.img
-          src="/character.png"
-          alt="me"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, y: [0, -10, 0], rotate: [-0.3, 0.3, -0.3] }}
-          style={{ filter: "drop-shadow(0px 20px 40px rgba(2,11,16,0.6)) brightness(0.92) contrast(1.05)" }}
-          className="pointer-events-none absolute bottom-[-10px] right-[5%] z-40 w-[740px] object-contain md:right-[10%] md:w-[860px]"
-          transition={{
-            opacity: { duration: 2.2, ease: "easeOut" },
-            y: { duration: 6, repeat: Infinity, ease: "easeInOut" },
-            rotate: { duration: 6, repeat: Infinity, ease: "easeInOut" },
-          }}
-        />
-
+      <section className="relative flex min-h-[100svh] flex-col px-5 py-5 sm:px-8 md:px-12 md:py-8 lg:px-[7vw] overflow-hidden">
         <header className="relative z-20 flex items-center justify-between text-[9px] uppercase tracking-[.34em] text-[#c1d1d0]/70">
           <p>Ocean signals</p>
           <p>Portfolio / 2026</p>
         </header>
 
-        <section className="flex flex-1 items-start pt-[16vh] md:items-center md:pt-0">
+        <div className="relative flex flex-1 flex-col md:flex-row md:items-center mt-12 md:mt-0">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 1.35, ease: "easeOut" }}
-            className="relative z-30 max-w-[650px]"
+            className="relative z-30 max-w-[650px] pt-8 md:pt-0"
           >
             <p className="mb-5 text-[10px] uppercase tracking-[.42em] text-[#bfd1cf]/70">
               signals from somewhere deep.
             </p>
-            <h1 className="font-serif text-[clamp(4.5rem,10vw,10rem)] font-medium leading-[.9] tracking-[-.05em] text-[#f4f7f6] drop-shadow-md">
+            <h1 className="font-serif text-[clamp(4.5rem,15vw,10rem)] font-medium leading-[.9] tracking-[-.05em] text-[#f4f7f6] drop-shadow-md">
               hi, i’m
               <span className="block italic text-white drop-shadow-lg">Shubhika Pradeep.</span>
             </h1>
-            <p className="mt-8 max-w-[480px] text-base font-light leading-7 tracking-[.15em] text-[#dce7e5] opacity-90 md:ml-2 md:text-[19px]">
+            <p className="mt-8 max-w-[480px] text-[18px] font-light leading-7 tracking-[.15em] text-[#dce7e5] opacity-90 md:ml-2 md:text-[19px]">
               building things that think, and
-              <br />
-              sometimes feel a little human.
+              <br className="hidden md:block" />
+              {" "}sometimes feel a little human.
             </p>
           </motion.div>
-        </section>
+
+          <motion.img
+            src="/character.png"
+            alt="me"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, y: [0, -10, 0], rotate: [-0.3, 0.3, -0.3] }}
+            style={{ filter: "drop-shadow(0px 20px 40px rgba(2,11,16,0.6)) brightness(0.92) contrast(1.05)" }}
+            className="pointer-events-none relative z-10 -ml-8 mt-4 w-[115%] max-w-[600px] object-contain md:absolute md:bottom-[-10px] md:right-[5%] md:mt-0 md:ml-0 md:w-[740px] lg:right-[10%] lg:w-[860px]"
+            transition={{
+              opacity: { duration: 2.2, ease: "easeOut" },
+              y: { duration: 6, repeat: Infinity, ease: "easeInOut" },
+              rotate: { duration: 6, repeat: Infinity, ease: "easeInOut" },
+            }}
+          />
+        </div>
 
         <footer className="relative z-40 flex items-end justify-between text-[9px] uppercase tracking-[.24em] text-[#bdcccb]/60">
           <p className="max-w-[150px] leading-5">scroll slowly<br />stay awhile</p>
@@ -550,14 +491,14 @@ function TimelineItem({ year, title, detail, expandedDetail }: { year: string; t
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.5 }}
       transition={{ duration: 1, ease: "easeOut" }}
-      className="mb-14 cursor-pointer group last:mb-0"
+      className="mb-16 md:mb-14 cursor-pointer group last:mb-0"
       onClick={() => setIsOpen(!isOpen)}
     >
       <div className="flex items-center gap-4">
-        <p className="text-[11px] tracking-[.25em] text-[#b8ccca]/40 transition-colors group-hover:text-[#e0e8e6]/70">{year}</p>
+        <p className="text-[12px] md:text-[11px] tracking-[.25em] text-[#b8ccca]/40 transition-colors group-hover:text-[#e0e8e6]/70">{year}</p>
         <span className="text-[#b8ccca]/40 transition-transform duration-300" style={{ transform: isOpen ? "rotate(45deg)" : "none" }}>+</span>
       </div>
-      <h3 className="mt-3 max-w-[500px] font-serif text-[32px] leading-[1.2] tracking-[.02em] text-white/95 drop-shadow-sm transition-colors group-hover:text-white md:text-[42px]">{title}</h3>
+      <h3 className="mt-3 max-w-full md:max-w-[500px] font-serif text-[32px] leading-[1.2] tracking-[.02em] text-white/95 drop-shadow-sm transition-colors group-hover:text-white md:text-[42px]">{title}</h3>
       
       <AnimatePresence>
         {isOpen && (
@@ -568,8 +509,8 @@ function TimelineItem({ year, title, detail, expandedDetail }: { year: string; t
             transition={{ duration: 0.4, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <p className="mt-4 max-w-[500px] text-[16px] font-light leading-7 tracking-wide text-[#f4f7f6]/95 md:text-[18px]">{detail}</p>
-            <p className="mt-3 max-w-[500px] text-[14px] font-light leading-6 tracking-wide text-[#f4f7f6]/80 md:text-[16px]">{expandedDetail}</p>
+            <p className="mt-5 max-w-full md:max-w-[500px] text-[18px] font-light leading-relaxed tracking-wide text-[#f4f7f6]/95 md:text-[20px]">{detail}</p>
+            <p className="mt-4 max-w-full md:max-w-[500px] text-[16px] font-light leading-relaxed tracking-wide text-[#f4f7f6]/80 md:text-[18px]">{expandedDetail}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -586,11 +527,11 @@ function Thought({ thought, onClick }: { thought: ThoughtArticle; onClick: () =>
       whileHover={{ y: -5 }}
       viewport={{ once: true, amount: 0.5 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="group rounded-xl border-t border-[#b5cbca]/20 px-4 py-6 text-left transition-all duration-500 hover:border-[#b5cbca]/40 hover:bg-white/[0.03]"
+      className="group rounded-2xl md:rounded-xl border border-[#b5cbca]/10 md:border-0 md:border-t md:border-[#b5cbca]/20 px-6 py-8 md:px-4 md:py-6 text-left transition-all duration-500 hover:border-[#b5cbca]/40 hover:bg-white/[0.03] bg-[#0a141e]/30 md:bg-transparent"
     >
-      <p className="text-[10px] tracking-[.28em] text-[#b8ccca]/50 transition-colors group-hover:text-[#b8ccca]/80">{thought.date} / NOTE</p>
-      <h3 className="mt-6 font-serif text-3xl text-[#dce7e5] transition-colors group-hover:text-white md:text-4xl">{thought.title}</h3>
-      <p className="mt-4 text-[10px] uppercase tracking-[.24em] text-[#b8ccca]/60 transition-colors group-hover:text-[#e0e8e6] group-hover:underline underline-offset-4">read note →</p>
+      <p className="text-[11px] md:text-[10px] tracking-[.28em] text-[#b8ccca]/60 md:text-[#b8ccca]/50 transition-colors group-hover:text-[#b8ccca]/80">{thought.date} / NOTE</p>
+      <h3 className="mt-6 font-serif text-[28px] leading-[1.1] text-[#dce7e5] transition-colors group-hover:text-white md:text-4xl">{thought.title}</h3>
+      <p className="mt-6 md:mt-4 text-[11px] md:text-[10px] uppercase tracking-[.24em] text-[#b8ccca]/80 md:text-[#b8ccca]/60 transition-colors group-hover:text-[#e0e8e6] md:group-hover:underline underline-offset-4">read note →</p>
     </motion.button>
   );
 }
@@ -624,13 +565,13 @@ function DomainSignal({
       }}
       transition={{ duration: 6 + (delay % 3), repeat: Infinity, ease: "easeInOut", delay: delay * 0.5 }}
       whileHover={{ scale: 1.05 }}
-      className={`group relative flex flex-col items-center justify-center transition-all duration-700 ${isFaded ? 'opacity-30' : 'opacity-100'} ${isAnchor ? 'px-6 py-6' : 'px-4 py-4'}`}
+      className={`group relative flex flex-col items-center justify-center transition-all duration-700 ${isFaded ? 'opacity-30' : 'opacity-100'} ${isAnchor ? 'px-4 py-6 md:px-6 md:py-6' : 'px-4 py-4'}`}
     >
-      <span className={`font-serif tracking-wide transition-all duration-500 text-center whitespace-nowrap group-hover:text-white group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.7)] ${isAnchor ? 'text-[#dce7e5] text-3xl md:text-5xl drop-shadow-md' : 'text-[#ccd9d7]/80 text-lg md:text-2xl drop-shadow-sm'}`}>
+      <span className={`font-serif tracking-wide transition-all duration-500 text-center max-w-[80vw] md:max-w-none md:whitespace-nowrap group-hover:text-white group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.7)] ${isAnchor ? 'text-[#dce7e5] text-[32px] leading-[1.1] md:text-5xl drop-shadow-md' : 'text-[#ccd9d7]/80 text-[22px] leading-[1.2] md:text-2xl drop-shadow-sm'}`}>
         {domain.title}
       </span>
       {domain.subtitle && (
-        <span className="absolute -bottom-2 md:-bottom-4 opacity-0 transition-all duration-500 group-hover:opacity-100 text-[9px] md:text-[11px] tracking-[.15em] text-[#b8ccca]/80 whitespace-nowrap font-light uppercase">
+        <span className="md:absolute md:-bottom-4 mt-2 md:mt-0 opacity-80 md:opacity-0 transition-all duration-500 group-hover:opacity-100 text-[11px] tracking-[.15em] text-[#b8ccca]/80 text-center max-w-[70vw] md:whitespace-nowrap font-light uppercase">
           {domain.subtitle}
         </span>
       )}

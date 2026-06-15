@@ -40,18 +40,18 @@ export default function AmbientAudio() {
 
     const noiseFilter = ctx.createBiquadFilter();
     noiseFilter.type = 'lowpass';
-    noiseFilter.frequency.value = 600; // Muffley, underwater
+    noiseFilter.frequency.value = 400; // Deep, muffled ocean
 
     const waveLfo = ctx.createOscillator();
     waveLfo.type = 'sine';
-    waveLfo.frequency.value = 0.08; // wave cycle
+    waveLfo.frequency.value = 0.03; // Much slower, gentle wave cycle
     const waveLfoGain = ctx.createGain();
-    waveLfoGain.gain.value = 400;
+    waveLfoGain.gain.value = 200; // Softer swell
     waveLfo.connect(waveLfoGain);
     waveLfoGain.connect(noiseFilter.frequency);
 
     const noiseGain = ctx.createGain();
-    noiseGain.gain.value = 0.08; // Keep it subtle
+    noiseGain.gain.value = 0.03; // Quieter overall
 
     whiteNoise.connect(noiseFilter);
     noiseFilter.connect(noiseGain);
