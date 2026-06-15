@@ -98,7 +98,7 @@ export default function AmbientAudio() {
   };
 
   return (
-    <div className="fixed top-20 right-4 md:top-6 md:right-6 z-[10000]">
+    <div className="fixed top-20 right-4 md:top-20 md:right-12 lg:right-[7vw] z-[10000]">
       <button 
         onClick={togglePlay}
         className="group relative flex items-center justify-center gap-3 overflow-hidden rounded-full border border-white/10 bg-[#0a141e]/50 px-5 py-3 backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/30"
