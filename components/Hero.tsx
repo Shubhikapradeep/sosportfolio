@@ -14,7 +14,6 @@ export default function Hero() {
   const [activeDomain, setActiveDomain] = useState<Domain | null>(null);
   const [hoveredDomain, setHoveredDomain] = useState<string | null>(null);
   const [focusedIndex, setFocusedIndex] = useState(0);
-  const [showPhone, setShowPhone] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = (e: UIEvent<HTMLDivElement>) => {
@@ -413,17 +412,7 @@ export default function Hero() {
               <span className="text-[10px] uppercase tracking-[.3em] text-[#b8ccca]/60 transition-colors group-hover:text-[#e0e8e6]">Email</span>
               <span className="mt-2 font-serif text-[clamp(1.5rem,4vw,3.5rem)] leading-none text-[#dce7e5] transition-colors duration-500 group-hover:text-[#ffffff]">pradeepshubhika@gmail.com</span>
             </a>
-            {showPhone ? (
-              <a href="tel:+919818270173" className="group inline-flex flex-col">
-                <span className="text-[10px] uppercase tracking-[.3em] text-[#b8ccca]/60 transition-colors group-hover:text-[#e0e8e6]">Phone</span>
-                <span className="mt-2 font-serif text-[clamp(1.5rem,4vw,3.5rem)] leading-none text-[#dce7e5] transition-colors duration-500 group-hover:text-[#ffffff]">+91 9818270173</span>
-              </a>
-            ) : (
-              <button onClick={() => setShowPhone(true)} className="group inline-flex flex-col text-left">
-                <span className="text-[10px] uppercase tracking-[.3em] text-[#b8ccca]/60 transition-colors group-hover:text-[#e0e8e6]">Phone</span>
-                <span className="mt-2 font-serif text-[clamp(1.5rem,4vw,3.5rem)] leading-none text-[#dce7e5] transition-colors duration-500 group-hover:text-[#ffffff]">click to reveal</span>
-              </button>
-            )}
+
             <a href="https://www.linkedin.com/in/shubhika-pradeep/" target="_blank" rel="noopener noreferrer" className="group inline-flex flex-col">
               <span className="text-[10px] uppercase tracking-[.3em] text-[#b8ccca]/60 transition-colors group-hover:text-[#e0e8e6]">LinkedIn</span>
               <span className="mt-2 font-serif text-[clamp(1.5rem,4vw,3.5rem)] leading-none text-[#dce7e5] transition-colors duration-500 group-hover:text-[#ffffff]">linkedin/shubhika-pradeep</span>
