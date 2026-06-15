@@ -96,7 +96,7 @@ export default function Hero() {
         </footer>
       </section>
 
-      <section className="relative z-20 min-h-screen overflow-hidden bg-[#061c27]/25 px-5 py-24 backdrop-blur-[2px] sm:px-8 md:px-12 lg:px-[7vw]">
+      <section className="relative z-20 min-h-screen overflow-hidden bg-[#061c27]/25 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
         <SectionHeading index="02" eyebrow="selected transmissions" title="projects." />
         
         <div 
@@ -200,7 +200,7 @@ export default function Hero() {
         </AnimatePresence>
       </section>
 
-      <section className="relative z-20 flex min-h-screen flex-col justify-center bg-[#051822]/30 px-5 py-24 backdrop-blur-[2px] sm:px-8 md:px-12 lg:px-[7vw]">
+      <section className="relative z-20 flex min-h-screen flex-col justify-center bg-[#051822]/30 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
         <SectionHeading index="03" eyebrow="drifting signals" title="things i think about." />
         
         {/* Mobile Fallback */}
@@ -351,7 +351,7 @@ export default function Hero() {
         </AnimatePresence>
       </section>
 
-      <section className="relative z-20 flex min-h-screen items-center bg-[#031721]/40 px-5 py-24 backdrop-blur-[3px] sm:px-8 md:px-12 lg:px-[7vw]">
+      <section className="relative z-20 flex min-h-screen items-center bg-[#031721]/40 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
         <div className="w-full">
           <SectionHeading index="04" eyebrow="drifting through time" title="experience." />
           <div className="mt-16 ml-auto max-w-2xl rounded-3xl border border-white/5 bg-[#0a141e]/50 p-8 backdrop-blur-md md:mt-24 md:p-12">
@@ -363,7 +363,7 @@ export default function Hero() {
         </div>
       </section>
 
-      <section className="relative z-20 flex min-h-screen items-center bg-[#02131c]/58 px-5 py-24 backdrop-blur-[5px] sm:px-8 md:px-12 lg:px-[7vw]">
+      <section className="relative z-20 flex min-h-screen items-center bg-[#02131c]/58 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
         <div className="w-full">
           <SectionHeading index="05" eyebrow="notes from below" title="thoughts." />
           <div className="mt-16 grid gap-8 md:mt-24 md:grid-cols-3">
@@ -404,7 +404,7 @@ export default function Hero() {
         </AnimatePresence>
       </section>
 
-      <section className="relative z-20 flex min-h-screen items-center bg-[#010e15]/72 px-5 py-24 backdrop-blur-[7px] sm:px-8 md:px-12 lg:px-[7vw]">
+      <section className="relative z-20 flex min-h-screen items-center bg-[#010e15]/72 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
         <div className="w-full">
           <SectionHeading index="06" eyebrow="send a signal" title="contact." />
           <div className="mt-16 flex flex-col gap-6 md:mt-24 md:grid md:grid-cols-2 md:gap-8">

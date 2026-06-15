@@ -26,7 +26,7 @@ export default function Background() {
         />
       </motion.div>
       
-      <motion.div style={{ y: y3 }} className="absolute inset-0">
+      <motion.div style={{ y: y3 }} className="hidden md:block absolute inset-0">
         <motion.div
           animate={{ x: ["-5%", "5%", "-5%"], y: ["-1%", "2%", "-1%"], opacity: [0.12, 0.26, 0.12] }}
           transition={{ duration: 19.3, ease: "easeInOut", repeat: Infinity }}
@@ -42,7 +42,7 @@ export default function Background() {
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(110,141,148,.2)_0%,rgba(10,32,42,.35)_48%,rgba(0,8,14,.65)_100%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,8,14,.55)_100%)]" />
       <div className="absolute inset-0 bg-[#0a2733]/25 mix-blend-color" />
-      <div className="grain absolute inset-0 opacity-[.07]" />
+      <div className="grain absolute inset-0 opacity-[.07] hidden md:block" />
     </div>
   );
 }

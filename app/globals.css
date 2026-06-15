@@ -46,13 +46,20 @@ body {
 .ocean-reflection {
   background-position: 46% 54%;
   filter: contrast(1.08) brightness(1.18);
-  mix-blend-mode: screen;
 }
 
 .ocean-shimmer {
   background-position: 58% 43%;
   filter: contrast(1.26) brightness(1.28) blur(1px);
-  mix-blend-mode: soft-light;
+}
+
+@media (min-width: 768px) {
+  .ocean-reflection {
+    mix-blend-mode: screen;
+  }
+  .ocean-shimmer {
+    mix-blend-mode: soft-light;
+  }
 }
 
 .grain {
