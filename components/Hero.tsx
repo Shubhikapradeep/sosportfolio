@@ -48,7 +48,7 @@ export default function Hero() {
 
       <section className="relative flex min-h-[100svh] flex-col px-5 py-5 sm:px-8 md:px-12 md:py-8 lg:px-[7vw] overflow-hidden">
         <header className="relative z-20 flex items-center justify-between text-[9px] uppercase tracking-[.34em] text-[#c1d1d0]/70">
-          <p>Ocean signals</p>
+          <p>Shubhika Pradeep</p>
           <p>Portfolio / 2026</p>
         </header>
 

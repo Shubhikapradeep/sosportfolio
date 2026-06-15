@@ -4,7 +4,7 @@ import CustomCursor from "@/components/CustomCursor";
 import AmbientAudio from "@/components/AmbientAudio";
 
 export const metadata: Metadata = {
-  title: "Ocean Signals | Portfolio",
+  title: "Shubhika Pradeep | Portfolio",
   description: "AI systems and digital experiences from somewhere deep.",
 };
 
