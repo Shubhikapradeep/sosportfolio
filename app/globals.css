@@ -18,8 +18,17 @@ body {
   --font-cormorant: "Iowan Old Style", "Baskerville", "Times New Roman", serif;
 }
 
+html,
 body {
   overflow-x: hidden;
+  max-width: 100%;
+}
+
+@supports (overflow: clip) {
+  html,
+  body {
+    overflow-x: clip;
+  }
 }
 
 @media (pointer: fine) {
@@ -34,6 +43,17 @@ body {
   select {
     cursor: none !important;
   }
+
+  /* Keep the text caret cursor in form fields so typing and selecting stay precise. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea {
+    cursor: text !important;
+  }
+}
+
+:focus-visible {
+  outline: 1px solid rgba(220, 231, 229, 0.85);
+  outline-offset: 4px;
 }
 
 .ocean-layer {

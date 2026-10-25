@@ -1,12 +1,65 @@
 "use client";
 
-import { useState, useRef, useEffect, UIEvent } from "react";
+import { useState, useRef, useEffect, useId, UIEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Background from "./Background";
 import ProjectSignal from "./ProjectSignal";
+import ProjectActions from "./ProjectActions";
+import ContactForm from "./ContactForm";
+import Link from "next/link";
 
-import { projects, domains, thoughtsData, type Project, type Domain, type ThoughtArticle } from "./data";
+import { projects, domains, thoughtsData, projectKindLabel, type Project, type Domain, type ThoughtArticle } from "./data";
 export type { Project, Domain, ThoughtArticle };
+
+const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+// Escape to close, focus moves into the dialog, Tab stays inside, focus returns on close.
+function useDialog(isOpen: boolean, onClose: () => void) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const dialog = dialogRef.current;
+    dialog?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onCloseRef.current();
+        return;
+      }
+      if (e.key !== "Tab" || !dialog) return;
+      const items = dialog.querySelectorAll<HTMLElement>(FOCUSABLE);
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (!dialog.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      } else if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [isOpen]);
+
+  return dialogRef;
+}
 
 export default function Hero() {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
@@ -15,6 +68,9 @@ export default function Hero() {
   const [hoveredDomain, setHoveredDomain] = useState<string | null>(null);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const projectDialogRef = useDialog(activeProject !== null, () => setActiveProject(null));
+  const domainDialogRef = useDialog(activeDomain !== null, () => setActiveDomain(null));
+  const thoughtDialogRef = useDialog(activeThought !== null, () => setActiveThought(null));
 
   const handleScroll = (e: UIEvent<HTMLDivElement>) => {
     const container = e.currentTarget;
@@ -48,6 +104,15 @@ export default function Hero() {
       <section className="relative flex min-h-[100svh] flex-col px-5 py-5 sm:px-8 md:px-12 md:py-8 lg:px-[7vw] overflow-hidden">
         <header className="relative z-20 flex items-center justify-between text-[9px] uppercase tracking-[.34em] text-[#c1d1d0]/70">
           <p>Shubhika Pradeep</p>
+          <nav aria-label="Sections" className="hidden md:block">
+            <ul className="flex items-center gap-8">
+              {[["projects", "#projects"], ["research", "#research"], ["teaching", "#teaching"], ["thoughts", "#thoughts"], ["contact", "#contact"]].map(([label, href]) => (
+                <li key={href}>
+                  <a href={href} className="transition-colors duration-500 hover:text-white">{label}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
           <p>Portfolio / 2026</p>
         </header>
 
@@ -74,7 +139,7 @@ export default function Hero() {
 
           <motion.img
             src="/character.png"
-            alt="me"
+            alt="Illustration of Shubhika seen from behind, sitting at the end of a concrete ledge"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, y: [0, -10, 0], rotate: [-0.3, 0.3, -0.3] }}
             style={{ filter: "drop-shadow(0px 20px 40px rgba(2,11,16,0.6)) brightness(0.92) contrast(1.05)" }}
@@ -91,12 +156,12 @@ export default function Hero() {
           <p className="max-w-[150px] leading-5">scroll slowly<br />stay awhile</p>
           <div className="flex items-center gap-3">
             <span className="h-px w-10 bg-[#b5cbca]/40" />
-            <span>01 / 05</span>
+            <span>01 / 06</span>
           </div>
         </footer>
       </section>
 
-      <section className="relative z-20 min-h-screen overflow-hidden bg-[#061c27]/25 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
+      <section id="projects" className="relative z-20 min-h-screen overflow-hidden bg-[#061c27]/25 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
         <SectionHeading index="02" eyebrow="selected transmissions" title="projects." />
         
         <div 
@@ -152,17 +217,27 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
+                ref={projectDialogRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="project-dialog-title"
                 className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-[#b5cbca]/20 bg-[#061c27] p-8 md:p-12 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               >
                 <button
+                  type="button"
                   onClick={() => setActiveProject(null)}
+                  aria-label="Close project details"
                   className="absolute right-6 top-6 text-[#b8ccca]/60 transition-colors hover:text-white"
                 >
-                  ✕
+                  <span aria-hidden="true">✕</span>
                 </button>
-                <p className="text-[10px] tracking-[.3em] text-[#b8ccca]/55">{activeProject.index} / PROJECT OVERVIEW</p>
-                <h3 className="mt-4 font-serif text-4xl text-[#dce7e5] md:text-5xl">{activeProject.title}</h3>
+                <p className="text-[10px] tracking-[.3em] text-[#b8ccca]/55">
+                  {activeProject.index} / PROJECT OVERVIEW
+                  {activeProject.status === "in-development" && <span className="text-[#e6d3a8]/80"> · IN DEVELOPMENT</span>}
+                </p>
+                <p className="mt-2 text-[10px] uppercase tracking-[.22em] text-[#e6d3a8]/75">{projectKindLabel[activeProject.kind]}</p>
+                <h3 id="project-dialog-title" className="mt-4 font-serif text-4xl text-[#dce7e5] md:text-5xl">{activeProject.title}</h3>
                 <p className="mt-6 text-sm font-light leading-7 tracking-[.1em] text-[#ccd9d7]/80 md:text-base whitespace-pre-line">
                   {activeProject.description}
                 </p>
@@ -186,22 +261,49 @@ export default function Hero() {
                   </div>
                 </div>
 
-                <div className="mt-12 flex items-center gap-6 border-t border-[#b5cbca]/10 pt-8">
-                  <a href={activeProject.demo} className="group flex items-center gap-2 text-[11px] uppercase tracking-[.2em] text-[#e0e8e6] transition-colors hover:text-white">
-                    Live Demo <span className="transition-transform group-hover:translate-x-1">→</span>
-                  </a>
-                  <a href={activeProject.github} className="text-[11px] uppercase tracking-[.2em] text-[#b8ccca]/60 transition-colors hover:text-[#e0e8e6]">
-                    GitHub
-                  </a>
-                </div>
+                <ProjectActions project={activeProject} className="mt-12 border-t border-[#b5cbca]/10 pt-8" />
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
       </section>
 
-      <section className="relative z-20 flex min-h-screen flex-col justify-center bg-[#051822]/30 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
-        <SectionHeading index="03" eyebrow="drifting signals" title="things i think about." />
+      <section id="research" className="relative z-20 flex min-h-[80vh] items-center bg-[#04202c]/35 px-5 py-24 sm:px-8 md:px-12 lg:px-[7vw]">
+        <div className="w-full">
+          <SectionHeading index="03" eyebrow="depth soundings" title="research." />
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="mt-16 max-w-3xl md:mt-24"
+          >
+            <p className="text-[10px] uppercase tracking-[.3em] text-[#b8ccca]/60">QuNAD Lab · PES University · Nov 2024 – May 2026</p>
+            <h3 className="mt-5 font-serif text-[clamp(2.25rem,5.5vw,4.25rem)] leading-[1] tracking-[-.03em] text-[#f4f7f6]">
+              do neural networks learn <span className="italic text-white">topology</span>, or the dataset?
+            </h3>
+            <p className="mt-8 max-w-2xl text-[16px] font-light leading-8 tracking-[.03em] text-[#dce7e5]/88 md:text-[17px]">
+              I built physics-informed Hamiltonian generators and winding-number labels, then benchmarked KNN, MLP and CNN models on clean data and on
+              unseen winding numbers and shifted parameters. Strong clean-data results did not guarantee generalization. The proposed next step is
+              disorder and non-Hermitian systems.
+            </p>
+            <ul aria-label="Status of this work" className="mt-6 flex flex-wrap gap-2 text-[10px] uppercase tracking-[.2em]">
+              <li className="rounded-full border border-[#9fd1c6]/40 px-3 py-1 text-[#bfe3da]">generators, labels, models · implemented</li>
+              <li className="rounded-full border border-[#9bbbe0]/40 px-3 py-1 text-[#c3d6ee]">generalization limits · reported</li>
+              <li className="rounded-full border border-[#e6d3a8]/45 px-3 py-1 text-[#e6d3a8]">disorder / non-Hermitian · proposed</li>
+            </ul>
+            <Link
+              href="/research/qunad"
+              className="group mt-10 inline-flex min-h-[48px] items-center gap-3 rounded-full border border-white/25 bg-white/[.06] px-7 py-3 text-[11px] uppercase tracking-[.28em] text-[#e0e8e6] backdrop-blur-md transition-colors duration-500 hover:border-white/50 hover:bg-white/[.12] hover:text-white"
+            >
+              read the case study <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      <section id="interests" className="relative z-20 flex min-h-screen flex-col justify-center bg-[#051822]/30 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
+        <SectionHeading index="04" eyebrow="drifting signals" title="things i think about." />
         
         {/* Mobile Fallback */}
         <div className="mt-16 flex flex-col items-center gap-8 md:hidden">
@@ -295,8 +397,8 @@ export default function Hero() {
             />
           </div>
 
-          {/* Research (Bottom Right) */}
-          <div className="absolute left-[85%] top-[70%] -translate-x-1/2 -translate-y-1/2 z-10">
+          {/* Research (Bottom Right) — 78% below lg keeps the unwrapped label inside tablet viewports */}
+          <div className="absolute left-[78%] top-[70%] -translate-x-1/2 -translate-y-1/2 z-10 lg:left-[85%]">
             <DomainSignal 
               domain={domains[4]} 
               onClick={() => setActiveDomain(domains[4])} 
@@ -322,17 +424,23 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
+                ref={domainDialogRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="domain-dialog-title"
                 className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-[#b5cbca]/20 bg-[#061c27] p-8 md:p-12 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               >
                 <button
+                  type="button"
                   onClick={() => setActiveDomain(null)}
+                  aria-label="Close"
                   className="absolute right-6 top-6 text-[#b8ccca]/60 transition-colors hover:text-white"
                 >
-                  ✕
+                  <span aria-hidden="true">✕</span>
                 </button>
                 <p className="text-[10px] tracking-[.3em] text-[#b8ccca]/55">DEEP DIVE</p>
-                <h3 className="mt-4 font-serif text-3xl text-[#dce7e5] md:text-4xl">{activeDomain.title}</h3>
+                <h3 id="domain-dialog-title" className="mt-4 font-serif text-3xl text-[#dce7e5] md:text-4xl">{activeDomain.title}</h3>
                 <p className="mt-6 text-sm font-light leading-relaxed tracking-[.05em] text-[#ccd9d7]/80">
                   {activeDomain.description}
                 </p>
@@ -340,9 +448,17 @@ export default function Hero() {
                 <div className="mt-10 border-t border-[#b5cbca]/10 pt-8">
                   <h4 className="text-[10px] uppercase tracking-[.25em] text-[#b8ccca]/50 mb-4">Related Work</h4>
                   <div className="flex flex-wrap gap-2">
-                    {activeDomain.related.map(rel => (
-                      <span key={rel} className="rounded-full bg-[#173846]/40 px-3 py-1.5 text-[11px] tracking-wide text-[#ccd9d7]/80">{rel}</span>
-                    ))}
+                    {activeDomain.related.length === 0 && <p className="text-[12px] font-light text-[#b8ccca]/55">No linked work yet.</p>}
+                    {activeDomain.related.map(rel => {
+                      const cls = "rounded-full bg-[#173846]/40 px-3 py-1.5 text-[11px] tracking-wide text-[#ccd9d7]/80";
+                      if (!rel.href) return <span key={rel.label} className={cls}>{rel.label}</span>;
+                      const external = rel.href.startsWith("http");
+                      return (
+                        <a key={rel.label} href={rel.href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})} className={`${cls} transition-colors hover:bg-[#173846]/70 hover:text-white`}>
+                          {rel.label} <span aria-hidden="true">{external ? "↗" : "→"}</span>
+                        </a>
+                      );
+                    })}
                   </div>
                 </div>
               </motion.div>
@@ -351,21 +467,45 @@ export default function Hero() {
         </AnimatePresence>
       </section>
 
-      <section className="relative z-20 flex min-h-screen items-center bg-[#031721]/40 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
+      <section id="experience" className="relative z-20 flex min-h-screen items-center bg-[#031721]/40 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
         <div className="w-full">
-          <SectionHeading index="04" eyebrow="drifting through time" title="experience." />
+          <SectionHeading index="05" eyebrow="drifting through time" title="experience." />
           <div className="mt-16 ml-auto max-w-2xl rounded-3xl border border-white/5 bg-[#0a141e]/50 p-8 backdrop-blur-md md:mt-24 md:p-12">
             <TimelineItem year="2026" title="Intern — PESU Research Foundation" detail="navigating real-world engineering." expandedDetail="worked on core systems and learned what it takes to ship resilient code at scale." />
-            <TimelineItem year="2024" title="Research — QuaNAD Lab" detail="exploring what ML models actually understand." expandedDetail="worked on classifying topological phases and found that models rely more on patterns than true physical understanding." />
-            <TimelineItem year="2023" title="Teaching Lead — Stanford Code in Place" detail="teaching people how to think, not just code." expandedDetail="mentored global students and contributed to automated feedback systems." />
+            <TimelineItem year="2024 – 2026" title="Research — QuNAD Lab, PES University" detail="exploring what ML models actually understand." expandedDetail="studied whether neural networks learn topological invariants or dataset-specific patterns. Performance degraded on unseen winding numbers and shifted parameters, which points toward disorder and non-Hermitian systems as the next test." href="/research/qunad" linkLabel="read the case study" />
             <TimelineItem year="2022" title="AI Intern — Mental Wellness Centre" detail="putting AI into real human environments." expandedDetail="built chatbots and workflows that had to function in actual healthcare settings." />
           </div>
         </div>
       </section>
 
-      <section className="relative z-20 flex min-h-screen items-center bg-[#02131c]/58 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
+      <section id="teaching" className="relative z-20 flex min-h-screen items-center bg-[#04202c]/30 px-5 py-24 sm:px-8 md:px-12 lg:px-[7vw]">
         <div className="w-full">
-          <SectionHeading index="05" eyebrow="notes from below" title="thoughts." />
+          <SectionHeading index="06" eyebrow="passing the current along" title="teaching & mentorship." />
+          <p className="mt-10 max-w-2xl text-[16px] font-light leading-8 tracking-[.03em] text-[#dce7e5]/85 md:text-[17px]">
+            From teaching my own sections, to reviewing and supporting other teachers, to a specialized AI course.
+          </p>
+          <ol className="mt-16 grid gap-6 md:mt-20 md:grid-cols-2">
+            <TeachingStep n="01" role="Section Leader" org="Stanford Code in Place" body="Served as a Section Leader twice, teaching my own sections." />
+            <TeachingStep
+              n="02"
+              role="Section Leader Mentor"
+              org="Stanford Code in Place · a subsequent term"
+              body="Reviewed other Section Leaders' work and supported students through the online Connect platform. By my own estimate I connected with more than 100 students there; this is not a formally verified program-wide figure."
+            />
+            <TeachingStep n="03" role="Section Leader" org="Probability for AI (PAI)" body="Selected as a Section Leader." />
+            <TeachingStep
+              n="04"
+              role="Paper contribution"
+              org="SLM vs LLM · AIEP"
+              body="Contributed to an SLM-vs-LLM paper (AIEP). Its title, publication status and the specifics of my contribution are not listed here."
+            />
+          </ol>
+        </div>
+      </section>
+
+      <section id="thoughts" className="relative z-20 flex min-h-screen items-center bg-[#02131c]/58 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
+        <div className="w-full">
+          <SectionHeading index="07" eyebrow="notes from below" title="thoughts." />
           <div className="mt-16 grid gap-8 md:mt-24 md:grid-cols-3">
             {thoughtsData.map(t => (
               <Thought key={t.id} thought={t} onClick={() => setActiveThought(t)} />
@@ -380,21 +520,29 @@ export default function Hero() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-[100] flex items-center justify-center bg-[#010a0f]/80 p-4 backdrop-blur-xl"
+              onClick={() => setActiveThought(null)}
             >
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 10, opacity: 0 }}
+                ref={thoughtDialogRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="thought-dialog-title"
                 className="relative max-h-[85vh] w-full max-w-[640px] overflow-y-auto rounded-3xl border border-white/10 bg-[#0a141e]/90 p-8 shadow-2xl md:p-14 hide-scrollbar"
+                onClick={(e) => e.stopPropagation()}
               >
                 <button
+                  type="button"
                   onClick={() => setActiveThought(null)}
+                  aria-label="Close note"
                   className="absolute right-6 top-6 text-3xl font-light text-[#b8ccca]/60 transition-colors hover:text-white"
                 >
-                  ×
+                  <span aria-hidden="true">×</span>
                 </button>
                 <p className="text-[11px] tracking-[.3em] text-[#b8ccca]/55">{activeThought.date} / NOTE</p>
-                <h3 className="mt-8 font-serif text-[32px] md:text-[42px] text-[#dce7e5] leading-[1.1]">{activeThought.title}</h3>
+                <h3 id="thought-dialog-title" className="mt-8 font-serif text-[32px] md:text-[42px] text-[#dce7e5] leading-[1.1]">{activeThought.title}</h3>
                 <div className="mt-10 text-[15px] font-light leading-relaxed tracking-wide text-[#ccd9d7]/90 md:text-[17px] whitespace-pre-line">
                   {activeThought.content}
                 </div>
@@ -404,27 +552,33 @@ export default function Hero() {
         </AnimatePresence>
       </section>
 
-      <section className="relative z-20 flex min-h-screen items-center bg-[#010e15]/72 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
+      <section id="contact" className="relative z-20 flex min-h-screen items-center bg-[#010e15]/72 px-5 py-24  sm:px-8 md:px-12 lg:px-[7vw]">
         <div className="w-full">
-          <SectionHeading index="06" eyebrow="send a signal" title="contact." />
+          <SectionHeading index="08" eyebrow="send a signal" title="contact." />
           <div className="mt-16 flex flex-col gap-6 md:mt-24 md:grid md:grid-cols-2 md:gap-8">
-            <a href="mailto:pradeepshubhika@gmail.com" className="group inline-flex flex-col">
+            <a href="mailto:pradeepshubhika@gmail.com" className="group inline-flex min-w-0 flex-col">
               <span className="text-[10px] uppercase tracking-[.3em] text-[#b8ccca]/60 transition-colors group-hover:text-[#e0e8e6]">Email</span>
-              <span className="mt-2 font-serif text-[clamp(1.5rem,4vw,3.5rem)] leading-none text-[#dce7e5] transition-colors duration-500 group-hover:text-[#ffffff]">pradeepshubhika@gmail.com</span>
+              <span className="mt-2 font-serif text-[clamp(1.5rem,3vw,3rem)] leading-[1.1] text-[#dce7e5] [overflow-wrap:anywhere] transition-colors duration-500 group-hover:text-[#ffffff]">pradeepshubhika@gmail.com</span>
             </a>
 
-            <a href="https://www.linkedin.com/in/shubhika-pradeep/" target="_blank" rel="noopener noreferrer" className="group inline-flex flex-col">
+            <a href="https://www.linkedin.com/in/shubhika-pradeep/" target="_blank" rel="noopener noreferrer" className="group inline-flex min-w-0 flex-col">
               <span className="text-[10px] uppercase tracking-[.3em] text-[#b8ccca]/60 transition-colors group-hover:text-[#e0e8e6]">LinkedIn</span>
-              <span className="mt-2 font-serif text-[clamp(1.5rem,4vw,3.5rem)] leading-none text-[#dce7e5] transition-colors duration-500 group-hover:text-[#ffffff]">linkedin/shubhika-pradeep</span>
+              <span className="mt-2 font-serif text-[clamp(1.5rem,3vw,3rem)] leading-[1.1] text-[#dce7e5] [overflow-wrap:anywhere] transition-colors duration-500 group-hover:text-[#ffffff]">linkedin/shubhika-pradeep</span>
             </a>
-            <a href="https://github.com/Shubhikapradeep" target="_blank" rel="noopener noreferrer" className="group inline-flex flex-col">
+            <a href="https://github.com/Shubhikapradeep" target="_blank" rel="noopener noreferrer" className="group inline-flex min-w-0 flex-col">
               <span className="text-[10px] uppercase tracking-[.3em] text-[#b8ccca]/60 transition-colors group-hover:text-[#e0e8e6]">GitHub</span>
-              <span className="mt-2 font-serif text-[clamp(1.5rem,4vw,3.5rem)] leading-none text-[#dce7e5] transition-colors duration-500 group-hover:text-[#ffffff]">github/Shubhikapradeep</span>
+              <span className="mt-2 font-serif text-[clamp(1.5rem,3vw,3rem)] leading-[1.1] text-[#dce7e5] [overflow-wrap:anywhere] transition-colors duration-500 group-hover:text-[#ffffff]">github/Shubhikapradeep</span>
             </a>
-            <div className="group inline-flex flex-col">
+            <div className="group inline-flex min-w-0 flex-col">
               <span className="text-[10px] uppercase tracking-[.3em] text-[#b8ccca]/60 transition-colors group-hover:text-[#e0e8e6]">Discord</span>
-              <span className="mt-2 font-serif text-[clamp(1.5rem,4vw,3.5rem)] leading-none text-[#dce7e5] transition-colors duration-500 group-hover:text-[#ffffff]">schrodingers_lover</span>
+              <span className="mt-2 font-serif text-[clamp(1.5rem,3vw,3rem)] leading-[1.1] text-[#dce7e5] [overflow-wrap:anywhere] transition-colors duration-500 group-hover:text-[#ffffff]">schrodingers_lover</span>
             </div>
+          </div>
+          <div className="mt-20 max-w-3xl md:mt-28">
+            <h3 id="contact-form-heading" className="text-[10px] uppercase tracking-[.3em] text-[#b8ccca]/60">
+              or leave a message
+            </h3>
+            <ContactForm labelledBy="contact-form-heading" />
           </div>
           <div className="mt-16 md:mt-24">
             <a
@@ -472,26 +626,37 @@ function SectionHeading({
   );
 }
 
-function TimelineItem({ year, title, detail, expandedDetail }: { year: string; title: string; detail: string; expandedDetail: string }) {
+function TimelineItem({ year, title, detail, expandedDetail, href, linkLabel }: { year: string; title: string; detail: string; expandedDetail: string; href?: string; linkLabel?: string }) {
   const [isOpen, setIsOpen] = useState(false);
+  const panelId = useId();
   return (
     <motion.div
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.5 }}
       transition={{ duration: 1, ease: "easeOut" }}
-      className="mb-16 md:mb-14 cursor-pointer group last:mb-0"
-      onClick={() => setIsOpen(!isOpen)}
+      className="mb-16 md:mb-14 group last:mb-0"
     >
-      <div className="flex items-center gap-4">
-        <p className="text-[12px] md:text-[11px] tracking-[.25em] text-[#b8ccca]/40 transition-colors group-hover:text-[#e0e8e6]/70">{year}</p>
-        <span className="text-[#b8ccca]/40 transition-transform duration-300" style={{ transform: isOpen ? "rotate(45deg)" : "none" }}>+</span>
-      </div>
-      <h3 className="mt-3 max-w-full md:max-w-[500px] font-serif text-[32px] leading-[1.2] tracking-[.02em] text-white/95 drop-shadow-sm transition-colors group-hover:text-white md:text-[42px]">{title}</h3>
-      
+      <h3>
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? panelId : undefined}
+          className="block w-full text-left"
+        >
+          <span className="flex items-center gap-4">
+            <span className="text-[12px] md:text-[11px] tracking-[.25em] text-[#b8ccca]/40 transition-colors group-hover:text-[#e0e8e6]/70">{year}</span>
+            <span aria-hidden="true" className="text-[#b8ccca]/40 transition-transform duration-300" style={{ transform: isOpen ? "rotate(45deg)" : "none" }}>+</span>
+          </span>
+          <span className="mt-3 block max-w-full md:max-w-[500px] font-serif text-[32px] leading-[1.2] tracking-[.02em] text-white/95 drop-shadow-sm transition-colors group-hover:text-white md:text-[42px]">{title}</span>
+        </button>
+      </h3>
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id={panelId}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -500,6 +665,11 @@ function TimelineItem({ year, title, detail, expandedDetail }: { year: string; t
           >
             <p className="mt-5 max-w-full md:max-w-[500px] text-[18px] font-light leading-relaxed tracking-wide text-[#f4f7f6]/95 md:text-[20px]">{detail}</p>
             <p className="mt-4 max-w-full md:max-w-[500px] text-[16px] font-light leading-relaxed tracking-wide text-[#f4f7f6]/80 md:text-[18px]">{expandedDetail}</p>
+            {href && (
+              <Link href={href} className="mt-5 inline-flex min-h-[44px] items-center gap-2 text-[11px] uppercase tracking-[.25em] text-[#b8ccca] transition-colors hover:text-white">
+                {linkLabel ?? "read more"} <span aria-hidden="true">→</span>
+              </Link>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -565,5 +735,22 @@ function DomainSignal({
         </span>
       )}
     </motion.button>
+  );
+}
+
+function TeachingStep({ n, role, org, body }: { n: string; role: string; org: string; body: string }) {
+  return (
+    <motion.li
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 1, ease: "easeOut" }}
+      className="rounded-3xl border border-white/5 bg-[#0a141e]/50 p-8 backdrop-blur-md md:p-10"
+    >
+      <p className="text-[11px] tracking-[.25em] text-[#b8ccca]/45">{n}</p>
+      <h3 className="mt-3 font-serif text-[30px] leading-[1.15] tracking-[.01em] text-white/95 md:text-[36px]">{role}</h3>
+      <p className="mt-2 text-[10px] uppercase tracking-[.22em] text-[#e6d3a8]/75">{org}</p>
+      <p className="mt-5 text-[15px] font-light leading-relaxed tracking-wide text-[#f4f7f6]/80 md:text-[16px]">{body}</p>
+    </motion.li>
   );
 }

@@ -7,10 +7,12 @@ export default function AmbientAudio() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
+  const suspendTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {
       // Cleanup on unmount
+      if (suspendTimeoutRef.current) clearTimeout(suspendTimeoutRef.current);
       if (audioContextRef.current) {
         audioContextRef.current.close();
       }
@@ -74,14 +76,21 @@ export default function AmbientAudio() {
 
     const gain = gainNodeRef.current!;
     const now = ctx.currentTime;
-    
+
+    // A pending suspend from an earlier fade-out would otherwise silence a quick re-enable.
+    if (suspendTimeoutRef.current) {
+      clearTimeout(suspendTimeoutRef.current);
+      suspendTimeoutRef.current = null;
+    }
+
     if (isPlaying) {
       // Fade out
       gain.gain.cancelScheduledValues(now);
       gain.gain.setValueAtTime(gain.gain.value, now);
       gain.gain.linearRampToValueAtTime(0, now + 2); // 2 second fade out
 
-      setTimeout(() => {
+      suspendTimeoutRef.current = setTimeout(() => {
+        suspendTimeoutRef.current = null;
         if (audioContextRef.current?.state === 'running') {
             audioContextRef.current.suspend();
         }
@@ -100,10 +109,11 @@ export default function AmbientAudio() {
   return (
     <div className="fixed top-28 right-4 md:top-28 md:right-12 lg:right-[7vw] z-[10000]">
       <button 
+        type="button"
         onClick={togglePlay}
-        className="group relative flex items-center justify-center gap-3 overflow-hidden rounded-full border border-white/10 bg-[#0a141e]/50 px-5 py-3 backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/30"
+        className="group relative flex min-h-[44px] min-w-[44px] items-center justify-center gap-3 overflow-hidden rounded-full border border-white/10 bg-[#0a141e]/50 px-4 py-3 backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/30 md:px-5"
       >
-        <div className="flex h-3 items-end gap-[3px]">
+        <div aria-hidden="true" className="flex h-3 items-end gap-[3px]">
           <motion.div 
             animate={{ height: isPlaying ? ["20%", "100%", "20%"] : "20%" }} 
             transition={{ repeat: isPlaying ? Infinity : 0, duration: 1.5, ease: "easeInOut" }} 
@@ -120,7 +130,8 @@ export default function AmbientAudio() {
             className="w-[2px] rounded-full bg-[#b8ccca]" 
           />
         </div>
-        <span className="text-[11px] uppercase tracking-[.25em] text-[#b8ccca] transition-colors group-hover:text-white">
+        {/* Visually hidden on small screens so the pill doesn't cover headings; still the button's name. */}
+        <span className="sr-only text-[11px] uppercase tracking-[.25em] text-[#b8ccca] transition-colors group-hover:text-white md:not-sr-only">
           {isPlaying ? 'Sound On' : 'Sound Off'}
         </span>
       </button>

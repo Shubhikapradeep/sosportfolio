@@ -1,10 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 
 export default function CustomCursor() {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  // Motion values update the DOM directly, so mousemove doesn't re-render React.
+  const mouseX = useMotionValue(-100);
+  const mouseY = useMotionValue(-100);
+  const dotX = useSpring(mouseX, { stiffness: 800, damping: 30, mass: 0.1 });
+  const dotY = useSpring(mouseY, { stiffness: 800, damping: 30, mass: 0.1 });
+  const ringX = useSpring(mouseX, { stiffness: 150, damping: 20, mass: 0.5 });
+  const ringY = useSpring(mouseY, { stiffness: 150, damping: 20, mass: 0.5 });
+
   const [hidden, setHidden] = useState(false);
   const [clicked, setClicked] = useState(false);
   const [isMobile, setIsMobile] = useState(true);
@@ -14,8 +21,9 @@ export default function CustomCursor() {
     setIsMobile(window.matchMedia("(pointer: coarse)").matches);
 
     const onMouseMove = (e: MouseEvent) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-      if (hidden) setHidden(false);
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
+      setHidden(false);
     };
 
     const onMouseLeave = () => setHidden(true);
@@ -36,7 +44,7 @@ export default function CustomCursor() {
       window.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mouseup", onMouseUp);
     };
-  }, [hidden]);
+  }, [mouseX, mouseY]);
 
   if (isMobile) return null;
 
@@ -44,10 +52,9 @@ export default function CustomCursor() {
     <>
       {/* The glowing dot */}
       <motion.div
-        className="pointer-events-none fixed left-0 top-0 z-[9999] h-3 w-3 rounded-full bg-[#dce7e5] mix-blend-screen shadow-[0_0_10px_rgba(200,255,255,0.8)]"
+        className="pointer-events-none fixed -left-1.5 -top-1.5 z-[9999] h-3 w-3 rounded-full bg-[#dce7e5] mix-blend-screen shadow-[0_0_10px_rgba(200,255,255,0.8)]"
+        style={{ x: dotX, y: dotY }}
         animate={{
-          x: position.x - 6,
-          y: position.y - 6,
           scale: clicked ? 0.8 : 1,
           opacity: hidden ? 0 : 1,
         }}
@@ -55,10 +62,9 @@ export default function CustomCursor() {
       />
       {/* The trailing ring */}
       <motion.div
-        className="pointer-events-none fixed left-0 top-0 z-[9998] h-10 w-10 rounded-full border border-[#b8ccca]/30 shadow-[0_0_15px_rgba(182,208,207,0.1)]"
+        className="pointer-events-none fixed -left-5 -top-5 z-[9998] h-10 w-10 rounded-full border border-[#b8ccca]/30 shadow-[0_0_15px_rgba(182,208,207,0.1)]"
+        style={{ x: ringX, y: ringY }}
         animate={{
-          x: position.x - 20,
-          y: position.y - 20,
           scale: clicked ? 1.2 : 1,
           opacity: hidden ? 0 : 1,
         }}

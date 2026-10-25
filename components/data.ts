@@ -5,15 +5,39 @@ export type Project = {
   description: string;
   techStack: string[];
   features: string[];
-  github: string;
-  demo: string;
+  // Stable id; local demos live at /projects/[slug].
+  slug: string;
+  // Where the Live Demo button goes: the in-browser demo route, or an externally deployed site.
+  demo: { type: "local" } | { type: "external"; url: string };
+  // Public repository URL. The GitHub action is only shown when this is set.
+  repository?: string;
+  // Projects whose real implementation hasn't been built yet; their demos are prototypes.
+  status?: "in-development";
+  // What the project is, so cards never imply more than exists: a rule-based prototype, a browser simulation, a demo built on synthetic data, or a deployed site.
+  kind: ProjectKind;
 };
 
+export type ProjectKind = "prototype" | "simulation" | "synthetic-demo" | "live-site";
+
+export const projectKindLabel: Record<ProjectKind, string> = {
+  prototype: "Local prototype",
+  simulation: "Browser simulation",
+  "synthetic-demo": "Synthetic-data demo",
+  "live-site": "Live site",
+};
+
+export const hasLocalDemo = (project: Project) => project.demo.type === "local";
+
+export const projectDemoHref = (project: Project) =>
+  project.demo.type === "external" ? project.demo.url : `/projects/${project.slug}`;
+
 export const projects: Project[] = [
-  { index: "01", title: "Mental Health AI Chatbot", delay: 0.1, description: "“trying to make AI feel a little more human”\n\nbuilt conversational systems with tone awareness, safety checks, and real-world mental health use cases.", techStack: ["Python", "LLMs", "React"], features: ["Tone awareness", "Safety checks", "Contextual memory"], github: "#", demo: "#" },
-  { index: "02", title: "Mapeer", delay: 0.2, description: "“making sustainable choices easier, not harder”\n\nused machine learning to recommend eco-friendly commute options based on user behavior.", techStack: ["TensorFlow", "React", "Node.js"], features: ["Behavioral modeling", "Real-time routing", "Carbon tracking"], github: "#", demo: "#" },
-  { index: "03", title: "ADDfocus", delay: 0.3, description: "“designing for brains that don’t follow ‘normal’ productivity rules”\n\nbuilt a cognition-aware system to reduce overload and improve focus.", techStack: ["Next.js", "Framer Motion", "TypeScript"], features: ["Cognitive load tracking", "Minimalist UI", "Focus states"], github: "#", demo: "#" },
-  { index: "04", title: "Stock Prediction System", delay: 0.4, description: "“seeing how far patterns can actually take you”\n\nexperimented with neural networks and time-series models on market data.", techStack: ["PyTorch", "Pandas", "Python"], features: ["Time-series forecasting", "Data visualization", "Pattern recognition"], github: "#", demo: "#" },
+  { index: "01", title: "Mental Health AI Chatbot", slug: "mental-health-chatbot", demo: { type: "local" }, status: "in-development", kind: "prototype", delay: 0.1, description: "“trying to make AI feel a little more human”\n\nexploring tone-aware, safety-checked conversation design. The interactive demo is a rule-based browser prototype: no language model, no backend, not a clinical tool.", techStack: ["TypeScript", "React", "Rule-based NLP (prototype)"], features: ["Keyword tone tagging", "Risk-phrase safety check", "In-session memory"] },
+  { index: "02", title: "Mapeer", slug: "mapeer", demo: { type: "local" }, kind: "simulation", repository: "https://github.com/Shubhikapradeep/mapeer", delay: 0.2, description: "“making sustainable choices easier, not harder”\n\na sustainable-mobility mapping platform from a hackathon (per the repository README), built around green route planning. The demo here is a separate browser simulation of the commute-ranking idea, with estimated speeds and emissions and no live map, routing or traffic data.", techStack: ["HTML", "CSS", "JavaScript", "Leaflet.js"], features: ["Eco-friendly route planning", "CO₂ savings estimates", "Priority-based ranking (demo)"] },
+  { index: "03", title: "ADDfocus", slug: "addfocus", demo: { type: "local" }, status: "in-development", kind: "prototype", delay: 0.3, description: "“designing for brains that don’t follow ‘normal’ productivity rules”\n\na cognition-aware focus tool, still in development. The demo is a browser prototype with a heuristic, self-reported load score, not a validated cognitive measure.", techStack: ["Next.js", "Framer Motion", "TypeScript"], features: ["Task capture", "Heuristic load meter", "One-task focus state"] },
+  { index: "04", title: "S&P 500 Stock Analysis", slug: "stock-prediction", demo: { type: "local" }, kind: "synthetic-demo", repository: "https://github.com/Shubhikapradeep/sp500-stock-analysis", delay: 0.4, description: "“seeing how far patterns can actually take you”\n\nthe repository analyses which financial fundamentals predict price across 379 S&P 500 companies, using regression, log-log modelling and neural networks in R. The demo here is a different, illustrative thing: a time-series backtest on synthetic data with simple baselines.", techStack: ["R", "Regression", "Neural networks", "Time-series demo (TypeScript)"], features: ["Fundamentals vs price (repo)", "Model RMSE comparison (repo)", "Synthetic walk-forward demo"] },
+  // Details from the repository README (team project; Shubhika is listed as main website developer).
+  { index: "05", title: "Kamido", slug: "kamido", demo: { type: "external", url: "https://shubhikapradeep.github.io/kamido/" }, kind: "live-site", repository: "https://github.com/Shubhikapradeep/kamido", delay: 0.5, description: "“origami made simple”\n\nbuilt the main website for a team origami tutorial site — step-by-step guides with embedded videos for five models.", techStack: ["HTML", "CSS", "JavaScript"], features: ["Step-by-step tutorials", "Embedded video guides", "Responsive layout"] },
 ];
 
 export type Domain = {
@@ -21,15 +45,16 @@ export type Domain = {
   title: string;
   subtitle?: string;
   description: string;
-  related: string[];
+  // Real work this interest connects to. Items with an href link to it; items without are plain labels.
+  related: { label: string; href?: string }[];
 };
 
 export const domains: Domain[] = [
-  { id: "ai", title: "building intelligent systems", subtitle: "the core engine", description: "Exploring the boundary between human intent and machine execution, crafting systems that augment rather than replace.", related: ["Quiet Machines", "Neural Atlas"] },
-  { id: "human", title: "human-centered everything", subtitle: "interfaces, accessibility, mental models", description: "Designing tools that respect human attention and operate quietly in the background of our lives.", related: ["Echo Archive", "Liminal OS"] },
-  { id: "systems", title: "systems, from logic to experience", subtitle: "DSA, low-level thinking, architecture", description: "Building robust architectures from the ground up, translating complex ideas into highly performant living systems.", related: ["Neural Atlas", "Custom Renderers"] },
-  { id: "product", title: "products that feel intentional", subtitle: "web dev, UX, real-world usability", description: "Crafting beautiful, tactile digital experiences using modern frameworks and subtle, meaningful motion.", related: ["Liminal OS", "Portfolio"] },
-  { id: "research", title: "curiosity-driven exploration", subtitle: "research, experiments, learning", description: "Constantly learning, reading, and prototyping weird ideas that might one day become something real.", related: ["Echo Archive", "Open Source"] },
+  { id: "ai", title: "what do models actually learn?", subtitle: "generalization, failure analysis, interpretability", description: "Whether a model has captured real structure or just the statistics of its training data. My QuNAD research tests this on topological invariants, where the right answer can be computed.", related: [{ label: "QuNAD case study", href: "/research/qunad" }, { label: "S&P 500 analysis", href: "https://github.com/Shubhikapradeep/sp500-stock-analysis" }] },
+  { id: "human", title: "human-centered everything", subtitle: "interfaces, accessibility, mental models", description: "Designing tools that respect human attention, and being honest about what a prototype can and cannot do.", related: [{ label: "Mental Health Chatbot (prototype)", href: "/projects/mental-health-chatbot" }, { label: "ADDfocus (prototype)", href: "/projects/addfocus" }] },
+  { id: "systems", title: "systems, from logic to experience", subtitle: "DSA, low-level thinking, architecture", description: "Translating complex ideas into software that holds up, from the underlying logic to what a person actually experiences.", related: [] },
+  { id: "product", title: "products that feel intentional", subtitle: "web dev, UX, real-world usability", description: "Crafting clear, tactile web experiences with modern frameworks and restrained, meaningful motion.", related: [{ label: "Kamido", href: "https://shubhikapradeep.github.io/kamido/" }, { label: "Mapeer", href: "/projects/mapeer" }] },
+  { id: "research", title: "curiosity-driven exploration", subtitle: "research, experiments, learning", description: "Reading, prototyping and testing ideas. The next question in my research: do disorder and non-Hermitian effects separate learning an invariant from exploiting patterns? This is a proposed direction, not a finished result.", related: [{ label: "QuNAD: next questions", href: "/research/qunad#next" }] },
 ];
 
 export type ThoughtArticle = {

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { MotionConfig, motion, useScroll, useTransform } from "framer-motion";
 
 export default function Background() {
   const { scrollY } = useScroll();
@@ -9,6 +9,9 @@ export default function Background() {
   const y3 = useTransform(scrollY, [0, 3000], [0, -450]);
 
   return (
+    // The slow water drift is the page's identity, so it is exempt from the app-wide
+    // reduced-motion setting in MotionProvider (which would otherwise freeze x/y/scale).
+    <MotionConfig reducedMotion="never">
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#04121a]">
       <motion.div style={{ y: y1 }} className="absolute inset-0">
         <motion.div
@@ -44,5 +47,6 @@ export default function Background() {
       <div className="absolute inset-0 bg-[#0a2733]/25 mix-blend-color" />
       <div className="grain absolute inset-0 opacity-[.07] hidden md:block" />
     </div>
+    </MotionConfig>
   );
 }

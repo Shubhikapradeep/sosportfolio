@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import CustomCursor from "@/components/CustomCursor";
 import AmbientAudio from "@/components/AmbientAudio";
+import MotionProvider from "@/components/MotionProvider";
 
 export const metadata: Metadata = {
   title: "Shubhika Pradeep | Portfolio",
@@ -14,9 +15,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <CustomCursor />
-        <AmbientAudio />
-        {children}
+        <MotionProvider>
+          <CustomCursor />
+          <AmbientAudio />
+          {children}
+        </MotionProvider>
       </body>
     </html>
   );
